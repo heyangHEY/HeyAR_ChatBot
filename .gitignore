@@ -169,3 +169,10 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# 零散的测试代码
+local_test/
+# 环境变量，存储各种API的Key，包括：OpenAI、火山引擎、代理等
+.env
+# 存储模型权重
+models/
