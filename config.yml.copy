@@ -1,23 +1,34 @@
 version: 0.0.1
 
-component:
-    video:
-    audio:
-    vad:
-    asr:
-    llm:
-    tts:
+selected_component:
+    VIDEO: None
+    AUDIO: Thinkplus
+    VAD: WebRTCVAD
+    ASR: FunASR
+    LLM: OLLAMA
+    TTS: DouBaoTTS
 
-video:
+VIDEO:
 
-audio:
+AUDIO:
+    Thinkplus:
 
-vad:
+# 语音活动检测
+VAD:
+    WebRTCVAD:
+        # 设置检测模式（0-3）
+        # 模式0，保守策略，误判语音为噪声的概率最低，适用于低噪声环境。
+        # 模式3，激进策略，误判噪声为语音的概率最低，适用于高噪声环境。
+        mode: 3
+        sample_rate: 16000
+ASR:
+    FunASR:
+        model_dir: models/SenseVoiceSmall
 
-asr:
-
-llm:
-
-tts:
-
+LLM:
+    OLLAMA:
+        model_name: qwen2.5:32b
+        base_url: http://localhost:11434  # Ollama服务地址
+TTS:
+    DouBaoTTS:
 

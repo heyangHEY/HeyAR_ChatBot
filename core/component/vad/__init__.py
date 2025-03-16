@@ -1,3 +1,3 @@
-from core.component.vad.vad_client import AsyncVADClient
+from core.component.vad.vad_client import BaseAsyncVADClient, AsyncVADClientFactory
 
-__all__ = ["AsyncVADClient"]
+__all__ = ["BaseAsyncVADClient", "AsyncVADClientFactory"]

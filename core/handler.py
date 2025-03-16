@@ -13,16 +13,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__) # 获取日志记录器实例，使用模块名命名
 
 async def main(config_file):
-    logger.info("started")
+    logger.info("----------Voice Chat Bot Service started----------")
 
     # 读取yaml配置
     config = ConfigLoader(config_file)
-
     # 实例化语音助手服务
-    # 初始化
     service = VoiceChatBotService(
-
+        config=config
     )
+    # 初始化服务
     await service.init()
     # 启动服务
     pass

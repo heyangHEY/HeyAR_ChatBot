@@ -14,5 +14,9 @@ python -m core.handler --config='./config.yml' # 运行ChatBotService
 ```
 
 
-./core/: ChatBot的核心代码。
+./core/: ChatBot的核心代码。  
 ./test/: 提供了几个notebook以供单功能测试和学习。
+
+感谢项目：
+1. [xiaozhi-esp32-server](https://github.com/xinnan-tech/xiaozhi-esp32-server)
+2. [ai-app-lab](https://github.com/volcengine/ai-app-lab/tree/main)
