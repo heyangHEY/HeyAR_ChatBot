@@ -9,8 +9,11 @@ conda create --name chatbot python=3.11
 conda activate chatbot
 pip install -r ./requirements.txt
 
-python -m core.handler --config='./config.yml' # 运行ChatBotService
-# 运行日志见：./app.log
+# 运行ChatBotService，运行日志见：./app.log
+python -m core.handler --config='./config.yml'
+
+# 测试音频模块，录音5s后播放，运行日志见：./app.log
+python -m core.test.test_audio_handler --config='./config.yml'
 ```
 
 
