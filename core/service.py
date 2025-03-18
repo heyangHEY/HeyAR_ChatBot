@@ -5,7 +5,7 @@ from core.component.video import AsyncVideoHandler
 from core.component.audio import AudioIOHandler
 from core.component.vad import BaseAsyncVADClient, AsyncVADClientFactory
 from core.component.asr import BaseASRClient, ASRClientFactory
-from core.component.llm import AsyncLLMClient
+from core.component.llm import BaseAsyncLLMClient, AsyncLLMClientFactory
 from core.component.tts import AsyncTTSClient
 
 class VoiceChatBotService():
@@ -14,7 +14,7 @@ class VoiceChatBotService():
     audio_io_handler: Optional[AudioIOHandler] = None
     vad_client: Optional[BaseAsyncVADClient] = None
     asr_client: Optional[BaseASRClient] = None
-    llm_client: Optional[AsyncLLMClient] = None
+    llm_client: Optional[BaseAsyncLLMClient] = None
     tts_client: Optional[AsyncTTSClient] = None
 
     def __init__(self, config):
@@ -37,7 +37,7 @@ class VoiceChatBotService():
 
         llm_name = self.config.get_cls_name("LLM")
         llm_config = self.config.get_llm_config()
-        # self.llm_client = AsyncLLMClientFactory.create(llm_name, llm_config)
+        self.llm_client = AsyncLLMClientFactory.create(llm_name, llm_config)
 
         tts_name = self.config.get_cls_name("TTS")
         tts_config = self.config.get_tts_config()

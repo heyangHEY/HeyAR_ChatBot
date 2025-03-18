@@ -56,6 +56,7 @@ ASR:
 LLM:
     Ollama:
         model_name: qwen2.5:32b
+        temperature: 0.1
         base_url: http://localhost:11434  # Ollama服务地址
 
 VLM:
