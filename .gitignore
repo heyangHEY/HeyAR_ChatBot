@@ -180,4 +180,4 @@ models/
 # chroma向量数据库持久化存储
 chroma_db/
 # 存储临时文件、中间结果
-temp/
+tmp/

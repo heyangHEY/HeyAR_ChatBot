@@ -1,18 +1,17 @@
 import uvloop
 import logging
 import argparse
-from core.config import ConfigLoader
+from core.utils.config import ConfigLoader
+from core.utils.logger import setup_logging
 from core.service import VoiceChatBotService
 
-logging.basicConfig(
-    level=logging.DEBUG, # 设置日志级别（ DEBUG < INFO < WARNING < ERROR < CRITICAL ）
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    filename="app.log", # 日志输出到文件
-    filemode='a' # 'a'为追加模式，'w'为覆盖写入
-)
-logger = logging.getLogger(__name__) # 获取日志记录器实例，使用模块名命名
+# 获取当前模块的日志记录器
+logger = logging.getLogger(__name__)
 
 async def main(config_file):
+    # 设置日志系统
+    setup_logging()
+    
     logger.info("----------Voice Chat Bot Service started----------")
 
     # 读取yaml配置
@@ -24,6 +23,15 @@ async def main(config_file):
     # 初始化服务
     await service.init()
     # 启动服务
+
+    # session_id
+    # audio input
+    # vad
+    # asr
+    # llm
+    # tts
+    # audio output
+    
     pass
 
 

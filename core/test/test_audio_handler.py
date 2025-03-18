@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import argparse
-from core.config import ConfigLoader
+from core.utils.config import ConfigLoader
 from core.component.audio import AudioIOHandler
 
 logging.basicConfig(
@@ -19,10 +19,10 @@ async def test_audio_io_handler():
     config_file = args.config
     # 读取yaml配置
     all_config = ConfigLoader(config_file)
-    _, audio_config = all_config.get_audio_config()
+    audio_config = all_config.get_audio_config()
     handler = AudioIOHandler(audio_config)
     await handler.init()
-    handler.test("./temp/recording.wav", 5)
+    await handler.test("recording.wav", 5)
 
 if __name__ == "__main__":
     asyncio.run(test_audio_io_handler())

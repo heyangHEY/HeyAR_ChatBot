@@ -28,20 +28,31 @@ class ConfigLoader():
             self.cls_llm_name = sc_cfg.get('LLM', "")
             self.cls_tts_name = sc_cfg.get('TTS', "")
 
+    def get_cls_name(self, cls_name: str):
+        mapping = {
+            "VIDEO": self.cls_video_name,
+            "AUDIO": self.cls_audio_name,
+            "VAD": self.cls_vad_name,
+            "ASR": self.cls_asr_name,
+            "LLM": self.cls_llm_name,
+            "TTS": self.cls_tts_name,
+        }
+        return mapping.get(cls_name, "")
+    
     def get_video_config(self):
-        return self.cls_video_name, self.all_cfg.get('VIDEO', {}).get(self.cls_video_name, {})
+        return self.all_cfg.get('VIDEO', {}).get(self.cls_video_name, {})
     
     def get_audio_config(self):
-        return self.cls_audio_name, self.all_cfg.get('AUDIO', {}).get(self.cls_audio_name, {})
+        return self.all_cfg.get('AUDIO', {}).get(self.cls_audio_name, {})
     
     def get_vad_config(self):
-        return self.cls_vad_name, self.all_cfg.get('VAD', {}).get(self.cls_vad_name, {})
+        return self.all_cfg.get('VAD', {}).get(self.cls_vad_name, {})
     
     def get_asr_config(self):
-        return self.cls_asr_name, self.all_cfg.get('ASR', {}).get(self.cls_asr_name, {})
+        return self.all_cfg.get('ASR', {}).get(self.cls_asr_name, {})
     
     def get_llm_config(self):
-        return self.cls_llm_name, self.all_cfg.get('LLM', {}).get(self.cls_llm_name, {})
+        return self.all_cfg.get('LLM', {}).get(self.cls_llm_name, {})
     
     def get_tts_config(self):
-        return self.cls_tts_name, self.all_cfg.get('TTS', {}).get(self.cls_tts_name, {})
+        return self.all_cfg.get('TTS', {}).get(self.cls_tts_name, {})

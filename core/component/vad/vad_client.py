@@ -47,8 +47,8 @@ class AsyncVADClientFactory:
         """根据配置创建VAD客户端实例"""
         client_class = cls._cls_map.get(name, None)
         if client_class is not None:
-            logger.info(f"Supported VAD type: {name}")
+            logger.info(f"受支持的VAD类型: {name}")
             return client_class(*args, **kwargs)
         
-        logger.critical(f"Unsupported VAD type: {name}")
-        raise ValueError(f"Unsupported VAD type: {name}")
+        logger.critical(f"不支持的VAD类型: {name}")
+        raise ValueError(f"不支持的VAD类型: {name}")

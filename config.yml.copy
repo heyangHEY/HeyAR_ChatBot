@@ -2,16 +2,41 @@ version: 0.0.1
 
 selected_component:
     VIDEO: None
-    AUDIO: Thinkplus
+    AUDIO: General
     VAD: WebRTCVAD
     ASR: FunASR
-    LLM: OLLAMA
+    LLM: Ollama
+    VLM: None
     TTS: DouBaoTTS
 
 VIDEO:
+    None
 
 AUDIO:
-    Thinkplus:
+    General: # 通用的PulseAudio设备，name: default, sample_rate: 48000, inputchannels: 1, outputchannels: 1
+        input:
+            name: pulse
+            channels: 1
+            sample_rate: 16000
+            chunk_duration: 30 # ms，音频片段的时长
+        output:
+            name: pulse
+            channels: 1
+            sample_rate: 24000
+            chunk_duration: 30 # ms，音频片段的时长
+        tmp_dir: tmp/audio
+    Thinkplus: # name: USB Speaker-Mic, sample_rate: 48000, inputchannels: 1, outputchannels: 2
+        input:
+            name: USB Speaker-Mic
+            channels: 1
+            sample_rate: 16000
+            chunk_duration: 30 # ms，音频片段的时长
+        output:
+            name: USB Speaker-Mic
+            channels: 2
+            sample_rate: 48000
+            chunk_duration: 30 # ms，音频片段的时长
+        tmp_dir: tmp/audio
 
 # 语音活动检测
 VAD:
@@ -21,14 +46,24 @@ VAD:
         # 模式3，激进策略，误判噪声为语音的概率最低，适用于高噪声环境。
         mode: 3
         sample_rate: 16000
+        chunk_duration: 30 # ms，音频片段的时长，支持10ms、20ms、30ms这三种
+
 ASR:
     FunASR:
         model_dir: models/SenseVoiceSmall
+        tmp_dir: tmp/asr
 
 LLM:
-    OLLAMA:
+    Ollama:
         model_name: qwen2.5:32b
         base_url: http://localhost:11434  # Ollama服务地址
+
+VLM:
+    # doubao/qwen
+    Ollama:
+        model_name: 
+        base_url: http://localhost:11434  # Ollama服务地址
+
 TTS:
     DouBaoTTS:
 

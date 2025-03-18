@@ -9,6 +9,12 @@ conda create --name chatbot python=3.11
 conda activate chatbot
 pip install -r ./requirements.txt
 
+# 下载ASR：SenseVoiceSmall模型到本地
+cd ./models
+mkdir SenseVoiceSmall
+git clone https://huggingface.co/FunAudioLLM/SenseVoiceSmall
+# config.yml中FunASR/model_dir设置为models/SenseVoiceSmall
+
 # 运行ChatBotService，运行日志见：./app.log
 python -m core.handler --config='./config.yml'
 
