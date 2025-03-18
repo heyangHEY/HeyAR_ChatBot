@@ -32,7 +32,7 @@ class AudioConfig:
         """计算每个缓冲区的帧数"""
         return int(self.sample_rate / 1000 * self.chunk_duration_ms) # 比如 16kHz * 30ms = 480 frames
 
-class AudioIOHandler:
+class AudioHandler:
     """异步的音频输入输出处理类
     
     处理音频设备的输入（麦克风）和输出（扬声器）流。

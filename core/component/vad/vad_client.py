@@ -3,12 +3,12 @@ from abc import ABC, abstractmethod
 
 logger = logging.getLogger(__name__)
 
-class BaseAsyncVADClient(ABC):
+class BaseVADClient(ABC):
     @abstractmethod
-    async def is_speech(self, frame) -> bool:
+    def is_speech(self, frame) -> bool:
         pass
 
-class AsyncWebRTCVADClient(BaseAsyncVADClient, ABC):
+class WebRTCVADClient(BaseVADClient, ABC):
     def __init__(self, config):
         self.config = config
 
@@ -17,12 +17,12 @@ class AsyncWebRTCVADClient(BaseAsyncVADClient, ABC):
         import webrtcvad
         self.vad = webrtcvad.Vad(self.mode)
 
-    async def is_speech(self, frame) -> bool:
+    def is_speech(self, frame) -> bool:
         # TODO 检查chunk duration是否时10ms、20ms、30ms这三种
         return self.vad.is_speech(frame, self.sample_rate)
     
 # TODO
-class AsyncSileroVADClient(BaseAsyncVADClient, ABC):
+class SileroVADClient(BaseVADClient, ABC):
     def __init__(self, config):
         self.config = config
 
@@ -30,25 +30,5 @@ class AsyncSileroVADClient(BaseAsyncVADClient, ABC):
         self.sample_rate: int = config.get("sample_rate", 16000)
         self.vad = None
 
-    async def is_speech(self, frame) -> bool:
+    def is_speech(self, frame) -> bool:
         return False
-
-
-# 通过工厂模式，实现根据查找表，动态实例化语音活动检测（VAD）类
-class AsyncVADClientFactory:
-    # 类名-类对象 的查找表
-    _cls_map = {
-        "WebRTCVAD": AsyncWebRTCVADClient,
-        "SileroVAD": AsyncSileroVADClient,
-    }
-
-    @classmethod    
-    def create(cls, name: str, *args, **kwargs) -> BaseAsyncVADClient:
-        """根据配置创建VAD客户端实例"""
-        client_class = cls._cls_map.get(name, None)
-        if client_class is not None:
-            logger.info(f"受支持的VAD类型: {name}")
-            return client_class(*args, **kwargs)
-        
-        logger.critical(f"不支持的VAD类型: {name}")
-        raise ValueError(f"不支持的VAD类型: {name}")

@@ -1,3 +1,3 @@
-from core.component.asr.asr_client import BaseASRClient, ASRClientFactory
+from core.component.asr.asr_client import BaseASRClient, FunASRClient
 
-__all__ = ["BaseASRClient", "ASRClientFactory"]   
+__all__ = ["BaseASRClient", "FunASRClient"]   

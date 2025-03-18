@@ -1,3 +1,3 @@
-from core.component.audio.handler import AudioIOHandler
+from core.component.audio.handler import AudioHandler
 
-__all__ = ["AudioIOHandler"]
+__all__ = ["AudioHandler"]

@@ -9,13 +9,16 @@ from core.service import VoiceChatBotService
 logger = logging.getLogger(__name__)
 
 async def main(config_file):
-    # 设置日志系统
-    setup_logging()
-    
-    logger.info("----------Voice Chat Bot Service started----------")
-
     # 读取yaml配置
     config = ConfigLoader(config_file)
+    # 设置日志系统
+    log_cfg = config.get_log_config()
+    setup_logging(log_cfg)
+
+    logger.info("----------Voice Chat Bot Service started----------")
+    version = config.get_all_config().get('version', "")
+    logger.info(f'load config file, version: {version}, path: {config_file}')
+
     # 实例化语音助手服务
     service = VoiceChatBotService(
         config=config
@@ -23,6 +26,7 @@ async def main(config_file):
     # 初始化服务
     await service.init()
     # 启动服务
+    await service.pipeline()
 
     # session_id
     # audio input

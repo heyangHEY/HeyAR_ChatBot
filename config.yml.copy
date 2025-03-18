@@ -1,5 +1,14 @@
 version: 0.0.1
 
+# 基础配置
+base:
+    log:
+        path: ./app.log
+        level: DEBUG # 设置日志级别（ DEBUG < INFO < WARNING < ERROR < CRITICAL ）
+        on_console: False # 是否在控制台输出日志
+    tmp_dir: tmp
+
+# 选中的组件
 selected_component:
     VIDEO: None
     AUDIO: General
@@ -9,9 +18,11 @@ selected_component:
     VLM: None
     TTS: DouBaoTTS
 
+# 视频组件
 VIDEO:
     None
 
+# 音频组件
 AUDIO:
     General: # 通用的PulseAudio设备，name: default, sample_rate: 48000, inputchannels: 1, outputchannels: 1
         input:
@@ -48,23 +59,33 @@ VAD:
         sample_rate: 16000
         chunk_duration: 30 # ms，音频片段的时长，支持10ms、20ms、30ms这三种
 
+# 语音识别
 ASR:
     FunASR:
         model_dir: models/SenseVoiceSmall
         tmp_dir: tmp/asr
+        clean_tmp_files: True # 是否在ASR结束后，清理tmp_dir中的临时文件
 
+# 语言模型
 LLM:
     Ollama:
-        model_name: qwen2.5:32b
+        model_name: qwen2.5:0.5b # 32b
         temperature: 0.1
         base_url: http://localhost:11434  # Ollama服务地址
 
+# 视觉语言模型
 VLM:
     # doubao/qwen
     Ollama:
         model_name: 
         base_url: http://localhost:11434  # Ollama服务地址
+    vLLM:
+        model_name: mistralai/Mistral-Small-3.1-24B-Instruct-2503
+        base_url: http://localhost:8000  # vLLM服务地址
 
+# 文本转语音
 TTS:
     DouBaoTTS:
+        base_url: https://api.doubao.com/tts/v1/tts
+        api_key: 
 

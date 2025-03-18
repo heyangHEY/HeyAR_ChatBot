@@ -29,3 +29,7 @@ python -m core.test.test_audio_handler --config='./config.yml'
 感谢项目：
 1. [xiaozhi-esp32-server](https://github.com/xinnan-tech/xiaozhi-esp32-server)
 2. [ai-app-lab](https://github.com/volcengine/ai-app-lab/tree/main)
+
+## 许可证
+
+本项目采用 [MIT](LICENSE) 开源许可证 - 查看 [LICENSE](LICENSE) 文件了解更多细节。

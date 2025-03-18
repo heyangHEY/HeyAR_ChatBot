@@ -1,3 +1,3 @@
-from core.component.tts.tts_client import AsyncTTSClient
+from core.component.tts.tts_client import BaseAsyncTTSClient, AsyncDouBaoTTSClient
 
-__all__ = ["AsyncTTSClient"]
+__all__ = ["BaseAsyncTTSClient", "AsyncDouBaoTTSClient"]
