@@ -29,10 +29,10 @@ python -m core.test.test_doubao_tts_client
 python -m core.test.test_doubao_tts_client_and_play
 ```
 
-./core/: ChatBot的核心代码。  
-./test/: 提供了几个notebook以供单功能测试和学习。
-./models/: 存储模型文件
-./tmp/: 存储对话过程中产生的临时文件，比如麦克风捕获的录音、tts合成的音频等
+./core/: ChatBot的核心代码；  
+./test/: 提供了几个notebook以供单功能测试和学习；  
+./models/: 存储模型文件；  
+./tmp/: 存储对话过程中产生的临时文件，比如麦克风捕获的录音、tts合成的音频等；  
 
 感谢以下项目：
 1. [xiaozhi-esp32-server](https://github.com/xinnan-tech/xiaozhi-esp32-server)
