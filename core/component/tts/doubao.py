@@ -124,8 +124,13 @@ class AsyncDouBaoTTSClient(AsyncBaseTTSClient):
         """
         self.app_id = config.get('app_id', '')
         self.token = config.get('access_token', '')
-        self.speaker = config.get('speaker', 'zh_female_shuangkuaisisi_moon_bigtts')
-        self.url = 'wss://openspeech.bytedance.com/api/v3/tts/bidirection'
+
+        self.url = config.get('base_url', 'wss://openspeech.bytedance.com/api/v3/tts/bidirection')
+        self.speaker = config.get('speaker', 'zh_female_wanwanxiaohe_moon_bigtts')
+        self.audio_format = config.get('audio_format', 'pcm')
+        self.audio_sample_rate = config.get('audio_sample_rate', 24000)
+        self.speech_rate = config.get('speech_rate', 0)
+        
         self.ws = None
 
     async def _connect(self) -> None:
@@ -236,8 +241,9 @@ class AsyncDouBaoTTSClient(AsyncBaseTTSClient):
                 "text": text,
                 "speaker": self.speaker,
                 "audio_params": {
-                    "format": "mp3",
-                    "sample_rate": 24000
+                    "format": self.audio_format,
+                    "sample_rate": self.audio_sample_rate,
+                    "speech_rate": self.speech_rate
                 }
             }
         }))

@@ -82,7 +82,7 @@ class AudioHandler:
             # ! 此处简单异步延迟2s。
             await asyncio.sleep(2)  # 等待设备就绪
         except Exception as e:
-            self._cleanup_resource()
+            self.cleanup_resource()
             raise RuntimeError(f"初始化音频处理器失败: {str(e)}") from e
 
     def _enumerate_device(self) -> None:
@@ -141,12 +141,14 @@ class AudioHandler:
 
     # 1. ostream未激活时，输出静音
     # 2. 激活，但输出队列为空时，输出静音
-    # 3. 激活，且输出队列非空时，取出元素并输出
+    # 3. 激活，且输出队列非空时，取出元素, 若有效则输出，否则输出静音
     def _ostream_callback(self, in_data: bytes, frame_count: int, time_info: Dict, status: int) -> tuple:
         """音频输出回调函数"""
         try:
             if self.ostream_active:
                 data = self.ostream_buffer.get_nowait()
+                if data is None:
+                    data = b'\x00' * frame_count * BYTES_PER_SAMPLE # 静音
             else:
                 # bytes_per_frame = self.channels * pyaudio.get_sample_size(pyaudio.paInt16)
                 # 单通道16位，bytes_per_frame = 1 * 2 = 2 字节
@@ -190,7 +192,7 @@ class AudioHandler:
                 f"frames_per_buffer: {in_frames_per_buffer}"
             )
         except Exception as e:
-            self._cleanup_resource()
+            self.cleanup_resource()
             raise RuntimeError(f"无法打开输入流：{str(e)}") from e
         
         try:
@@ -211,10 +213,10 @@ class AudioHandler:
                 f"frames_per_buffer: {out_frames_per_buffer}"
             )
         except Exception as e:
-            self._cleanup_resource()
+            self.cleanup_resource()
             raise RuntimeError(f"无法打开输出流：{str(e)}") from e
 
-    def _cleanup_resource(self) -> None:
+    def cleanup_resource(self) -> None:
         """清理所有已分配的音频资源"""
         try:
             if self.istream is not None:
@@ -231,24 +233,29 @@ class AudioHandler:
 
     async def astream_play(self, audio_stream: AsyncGenerator[bytes, None]) -> None:
         """异步播放音频流"""
-        buffer = bytearray()
-        frame_size = self.output_config.frames_per_buffer * BYTES_PER_SAMPLE # n frames * 2 bytes per sample
+        chunks = bytearray()
+        _size = self.output_config.frames_per_buffer * BYTES_PER_SAMPLE # n frames * 2 bytes per sample
 
         try:
             async for chunk in audio_stream:
-                if chunk is None:
-                    break
-                else:
-                    buffer.extend(chunk)
-                    while len(buffer) >= frame_size:
-                        self.ostream_buffer.put(bytes(buffer[:frame_size]))
-                        buffer = buffer[frame_size:]
-            if buffer:
-                padding = b'\x00' * (frame_size - len(buffer))
-                buffer.extend(padding)
-                self.ostream_buffer.put(bytes(buffer))
+                if chunk is not None:
+                    chunks.extend(chunk)
+                    while len(chunks) >= _size:
+                        self.ostream_buffer.put(bytes(chunks[:_size]))
+                        chunks = chunks[_size:]
+            
+            # 如果buffer中仍有数据，则padding后播放
+            if chunks:
+                padding = b'\x00' * (_size - len(chunks))
+                chunks.extend(padding)
+                self.ostream_buffer.put(bytes(chunks))
         except Exception as e:
             logger.error(f"异步播放音频流失败: {str(e)}")
+            raise
+        
+        # 等待所有数据播放完成
+        while not self.is_playback_complete():
+            await asyncio.sleep(0.01)  # 每10ms检查一次播放状态
 
     async def test(self, temp_file: str, seconds: int) -> None:
         """测试音频录制和播放功能
@@ -319,15 +326,15 @@ class AudioHandler:
                     data = wf.readframes(frames_per_buffer)
             
             # 等待所有数据播放完成
-            while not self._is_playback_complete():
-                await asyncio.sleep(0.05)  # 每50ms检查一次播放状态
+            while not self.is_playback_complete():
+                await asyncio.sleep(0.01)  # 每10ms检查一次播放状态
             
             logger.debug(f"播放完成：{temp_file}")
         except Exception as e:
             logger.error(f"播放失败: {str(e)}")
             raise
 
-    def _is_playback_complete(self) -> bool:
+    def is_playback_complete(self) -> bool:
         """检查音频播放是否完成
         
         Returns:

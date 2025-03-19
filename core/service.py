@@ -83,7 +83,6 @@ class VoiceChatBotService():
                             speech_chunks = []
                             session_id = str(uuid.uuid4())
                             asr_text = self.asr_client.speech_to_text(_speech_chunks, session_id)
-                            _speech_chunks = []
                             logger.info(f"User: {asr_text}")
                             print(f"User: {asr_text}")
                             self.chag_log.append({
