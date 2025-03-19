@@ -6,13 +6,13 @@ from langchain_ollama import ChatOllama
 
 logger = logging.getLogger(__name__)
 
-class BaseAsyncLLMClient(ABC):
+class AsyncBaseLLMClient(ABC):
     @abstractmethod
     async def astream_chat(self, messages: List[Dict[str, str]], session_id: str) -> AsyncGenerator[str, None]:
         """与LLM进行对话"""
         pass
 
-class AsyncOllamaClient(BaseAsyncLLMClient):
+class AsyncOllamaClient(AsyncBaseLLMClient):
     def __init__(self, config: dict):
         self.model_name = config.get("model_name", "")
         self.temperature = config.get("temperature", 0.1)
@@ -29,8 +29,6 @@ class AsyncOllamaClient(BaseAsyncLLMClient):
 
     async def astream_chat(self, messages: List[Dict[str, str]], session_id: str) -> AsyncGenerator[str, None]:
         """与LLM进行对话"""
-        response = ""
         async for chunk in self.llm.astream(messages):
             token = chunk.content
-            response += token
             yield token

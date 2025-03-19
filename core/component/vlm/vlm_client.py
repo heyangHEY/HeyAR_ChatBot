@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 
 logger = logging.getLogger(__name__)
 
-class BaseAsyncVLMClient(ABC):
+class AsyncBaseVLMClient(ABC):
     @abstractmethod
     async def astream_chat(self, messages: List[Dict[str, str]], session_id: str) -> AsyncGenerator[str, None]:
         """与VLM进行对话"""
@@ -19,7 +19,7 @@ class AsyncVLMClientFactory:
     }
 
     @classmethod    
-    def create(cls, name: str, *args, **kwargs) -> BaseAsyncVLMClient:
+    def create(cls, name: str, *args, **kwargs) -> AsyncBaseVLMClient:
         """根据配置创建VLM客户端实例"""
         client_class = cls._cls_map.get(name, None)
         if client_class is not None:

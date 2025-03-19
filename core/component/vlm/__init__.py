@@ -1,3 +1,3 @@
-from core.component.vlm.vlm_client import BaseAsyncVLMClient, AsyncVLMClientFactory
+from core.component.vlm.vlm_client import AsyncBaseVLMClient, AsyncVLMClientFactory
 
-__all__ = ["BaseAsyncVLMClient", "AsyncVLMClientFactory"]
+__all__ = ["AsyncBaseVLMClient", "AsyncVLMClientFactory"]

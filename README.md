@@ -20,6 +20,9 @@ python -m core.handler --config='./config.yml'
 
 # 测试音频模块，录音5s后播放，运行日志见：./app.log
 python -m core.test.test_audio_handler --config='./config.yml'
+
+# 测试豆包大语言合成模型-双向流式API，合成结果为 ./tmp/tts/test.mp3 和 ./tmp/tts/test_stream.mp3
+python -m core.test.test_doubao_tts_client
 ```
 
 

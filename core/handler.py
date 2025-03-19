@@ -27,17 +27,7 @@ async def main(config_file):
     await service.init()
     # 启动服务
     await service.pipeline()
-
-    # session_id
-    # audio input
-    # vad
-    # asr
-    # llm
-    # tts
-    # audio output
     
-    pass
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

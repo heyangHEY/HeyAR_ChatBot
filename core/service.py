@@ -9,8 +9,8 @@ from core.component.audio import AudioHandler
 from core.component.factory import ComponentFactory
 from core.component.vad import BaseVADClient
 from core.component.asr import BaseASRClient
-from core.component.llm import BaseAsyncLLMClient
-from core.component.tts import BaseAsyncTTSClient
+from core.component.llm import AsyncBaseLLMClient
+from core.component.tts import AsyncBaseTTSClient
 
 logger = logging.getLogger(__name__)
 
@@ -20,8 +20,8 @@ class VoiceChatBotService():
     audio_handler: Optional[AudioHandler] = None
     vad_client: Optional[BaseVADClient] = None
     asr_client: Optional[BaseASRClient] = None
-    llm_client: Optional[BaseAsyncLLMClient] = None
-    tts_client: Optional[BaseAsyncTTSClient] = None
+    llm_client: Optional[AsyncBaseLLMClient] = None
+    tts_client: Optional[AsyncBaseTTSClient] = None
 
     chag_log: List[Dict[str, str]] = []
 
@@ -90,20 +90,32 @@ class VoiceChatBotService():
                                 "role": "user",
                                 "content": asr_text
                             })
-                            # 将文本发送给llm
-                            print("AI: ", end="", flush=True)
-                            llm_text = ""
-                            async for llm_text_chunk in self.llm_client.astream_chat(self.chag_log, session_id):
-                                llm_text += llm_text_chunk
-                                print(llm_text_chunk, end="", flush=True)
-                            print("\n")
-                            logger.info(f"AI: {llm_text}")
+
+                            # 等待llm的流式回复
+                            # 等待tts的流式转换
+                            # 等待扬声器的流式播放
+
+                            async def llm_text_generator(response: str):
+                                generator = self.llm_client.astream_chat(self.chag_log, session_id)
+                                print("AI: ", end="", flush=True)
+                                async for chunk in generator:
+                                    if chunk.strip():
+                                        response += chunk
+                                        print(chunk, end="", flush=True)
+                                        yield chunk
+                                    else:
+                                        break
+                                print("\n")
+                            
+                            llm_response = ""
+                            tts_generator = self.tts_client.astream_tts(llm_text_generator(llm_response))
+                            await self.audio_handler.astream_play(tts_generator)
+                            print(f"AI: {llm_response}")
+                            logger.info(f"AI: {llm_response}")
                             self.chag_log.append({
                                 "role": "assistant",
-                                "content": llm_text
+                                "content": llm_response
                             })
-                            # 将llm的回复转换为音频
-                
 
 
             except Exception as e:

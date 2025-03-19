@@ -9,7 +9,7 @@ from core.utils.redirect import suppress_stderr
 import asyncio
 from scipy.signal import resample_poly
 from dataclasses import dataclass
-
+from typing import AsyncGenerator
 logger = logging.getLogger(__name__)
 
 # 音频配置常量
@@ -228,6 +228,27 @@ class AudioHandler:
             self.pa.terminate()
         except Exception as e:
             logger.error(f"清理音频资源时发生错误: {str(e)}")
+
+    async def astream_play(self, audio_stream: AsyncGenerator[bytes, None]) -> None:
+        """异步播放音频流"""
+        buffer = bytearray()
+        frame_size = self.output_config.frames_per_buffer * BYTES_PER_SAMPLE # n frames * 2 bytes per sample
+
+        try:
+            async for chunk in audio_stream:
+                if chunk is None:
+                    break
+                else:
+                    buffer.extend(chunk)
+                    while len(buffer) >= frame_size:
+                        self.ostream_buffer.put(bytes(buffer[:frame_size]))
+                        buffer = buffer[frame_size:]
+            if buffer:
+                padding = b'\x00' * (frame_size - len(buffer))
+                buffer.extend(padding)
+                self.ostream_buffer.put(bytes(buffer))
+        except Exception as e:
+            logger.error(f"异步播放音频流失败: {str(e)}")
 
     async def test(self, temp_file: str, seconds: int) -> None:
         """测试音频录制和播放功能
