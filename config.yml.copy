@@ -4,8 +4,8 @@ version: 0.0.1
 base:
     log:
         path: ./app.log
-        level: DEBUG # 设置日志级别（ DEBUG < INFO < WARNING < ERROR < CRITICAL ）
-        on_console: False # 是否在控制台输出日志
+        level: INFO         # 设置日志级别（ DEBUG < INFO < WARNING < ERROR < CRITICAL ）
+        on_console: False   # 是否在控制台输出日志
     tmp_dir: tmp
 
 # 选中的组件
@@ -24,68 +24,80 @@ VIDEO:
 
 # 音频组件
 AUDIO:
-    General: # 通用的PulseAudio设备，name: default, sample_rate: 48000, inputchannels: 1, outputchannels: 1
+    General: 
+        # 通用的PulseAudio设备，name: default, sample_rate: 48000, inputchannels: 1, outputchannels: 1
         input:
             name: pulse
             channels: 1
             sample_rate: 16000
-            chunk_duration: 30 # ms，音频片段的时长
+            chunk_duration: 30      # ms，音频片段的时长
         output:
             name: pulse
             channels: 1
             sample_rate: 24000
-            chunk_duration: 30 # ms，音频片段的时长
+            chunk_duration: 30      # ms，音频片段的时长
         tmp_dir: tmp/audio
-    Thinkplus: # name: USB Speaker-Mic, sample_rate: 48000, inputchannels: 1, outputchannels: 2
+    Thinkplus: 
+        # name: USB Speaker-Mic, sample_rate: 48000, inputchannels: 1, outputchannels: 2
         input:
             name: USB Speaker-Mic
             channels: 1
             sample_rate: 16000
-            chunk_duration: 30 # ms，音频片段的时长
+            chunk_duration: 30      # ms，音频片段的时长
         output:
             name: USB Speaker-Mic
             channels: 2
             sample_rate: 48000
-            chunk_duration: 30 # ms，音频片段的时长
+            chunk_duration: 30      # ms，音频片段的时长
         tmp_dir: tmp/audio
 
 # 语音活动检测
 VAD:
     WebRTCVAD:
-        # 设置检测模式（0-3）
-        # 模式0，保守策略，误判语音为噪声的概率最低，适用于低噪声环境。
-        # 模式3，激进策略，误判噪声为语音的概率最低，适用于高噪声环境。
         mode: 3
+            # 设置检测模式（0-3）
+            # 模式0，保守策略，误判语音为噪声的概率最低，适用于低噪声环境。
+            # 模式3，激进策略，误判噪声为语音的概率最低，适用于高噪声环境。
         sample_rate: 16000
-        chunk_duration: 30 # ms，音频片段的时长，支持10ms、20ms、30ms这三种
+        chunk_duration: 30      # ms，音频片段的时长，支持10ms、20ms、30ms这三种
 
 # 语音识别
 ASR:
     FunASR:
         model_dir: models/SenseVoiceSmall
         tmp_dir: tmp/asr
-        clean_tmp_files: True # 是否在ASR结束后，清理tmp_dir中的临时文件
+        clean_tmp_files: True   # 是否在ASR结束后，清理tmp_dir中的临时文件
 
 # 语言模型
 LLM:
     Ollama:
-        model_name: qwen2.5:0.5b # 32b
+        model_name: qwen2.5:0.5b            # 32b
         temperature: 0.1
-        base_url: http://localhost:11434  # Ollama服务地址
+        base_url: http://localhost:11434    # Ollama服务地址
 
 # 视觉语言模型
 VLM:
     # doubao/qwen
     Ollama:
         model_name: 
-        base_url: http://localhost:11434  # Ollama服务地址
+        base_url: http://localhost:11434    # Ollama服务地址
     vLLM:
         model_name: mistralai/Mistral-Small-3.1-24B-Instruct-2503
-        base_url: http://localhost:8000  # vLLM服务地址
+        base_url: http://localhost:8000     # vLLM服务地址
 
 # 文本转语音
 TTS:
     DouBaoTTS:
-        base_url: https://api.doubao.com/tts/v1/tts
-        api_key: 
-
+        # 参数参考：https://www.volcengine.com/docs/6561/1329505
+        base_url: wss://openspeech.bytedance.com/api/v3/tts/bidirection # 豆包TTS服务地址
+        speaker: zh_female_wanwanxiaohe_moon_bigtts         # 说话人
+            # zh_female_wanwanxiaohe_moon_bigtts    # 湾湾小何
+            # zh_female_shuangkuaisisi_moon_bigtts  # 爽快思思/Skye
+            # en_female_anna_mars_bigtts            # Anna 英式英语
+            # zh_female_daimengchuanmei_moon_bigtts # 呆萌川妹
+        audio_format: pcm                                   # 音频格式：mp3/ogg_opus/pcm
+        audio_sample_rate: 24000                            # 音频采样率：[8000,16000,22050,24000,32000,44100,48000]
+        speech_rate: 0                                      # 语速，取值范围[-50,100]，100代表2.0倍速，-50代表0.5倍数
+        app_id:                                             # 应用ID    # ! 隐私
+        access_token:                                       # 口令      # ! 隐私
+        tmp_dir: tmp/tts

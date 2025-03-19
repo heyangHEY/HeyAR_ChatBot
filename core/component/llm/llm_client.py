@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 class AsyncBaseLLMClient(ABC):
     @abstractmethod
-    async def astream_chat(self, messages: List[Dict[str, str]], session_id: str) -> AsyncGenerator[str, None]:
+    async def astream_chat(self, messages: List[Dict[str, str]], session_id: str, print_stream: bool = False) -> AsyncGenerator[str, None]:
         """与LLM进行对话"""
         pass
 
@@ -27,8 +27,24 @@ class AsyncOllamaClient(AsyncBaseLLMClient):
         )
         logger.debug(f"Ollama模型初始化完成，耗时: {time.time() - start_time} 秒")
 
-    async def astream_chat(self, messages: List[Dict[str, str]], session_id: str) -> AsyncGenerator[str, None]:
+    async def astream_chat(self, messages: List[Dict[str, str]], session_id: str, print_stream: bool = False) -> AsyncGenerator[str, None]:
         """与LLM进行对话"""
+        if print_stream:
+            print("AI: ", end="", flush=True)
+        response = ""
         async for chunk in self.llm.astream(messages):
-            token = chunk.content
-            yield token
+            token = chunk.content.strip()
+            if token:
+                response += token
+                if print_stream:
+                    print(token, end="", flush=True)
+                yield token
+            else:
+                break
+        if print_stream:
+            print("\n")
+
+        messages.append({
+            "role": "assistant",
+            "content": response
+        })
