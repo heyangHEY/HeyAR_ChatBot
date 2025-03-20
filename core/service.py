@@ -90,6 +90,8 @@ class VoiceChatBotService():
                         silence_duration = 0
                     else:
                         if triggered:
+                            # TODO check
+                            speech_chunks.append(audio_chunk)
                             silence_duration += 30 # 30ms
                             # 如果检测到说话，且随后沉默时间超过300ms，则粗略的认为用户已经说完话
                             if silence_duration > 300:

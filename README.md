@@ -15,6 +15,13 @@ mkdir SenseVoiceSmall
 git clone https://huggingface.co/FunAudioLLM/SenseVoiceSmall
 # config.yml中FunASR/model_dir设置为models/SenseVoiceSmall
 
+# 下载 silero-vad 模型到本地
+cd ./models
+# git clone --branch v5.1.2 https://github.com/snakers4/silero-vad.git
+wget --https-only https://github.com/snakers4/silero-vad/archive/refs/tags/v5.1.2.zip
+unzip -d ./ v5.1.2.zip
+# config.yml 中 SileroVAD/model_dir 设置为 models/silero-vad-5.1.2
+
 # 开启ollama服务，下载 qwen2.5 的模型文件
 
 # 运行ChatBotService，运行日志见：./app.log

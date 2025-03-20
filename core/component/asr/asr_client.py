@@ -28,12 +28,13 @@ class BaseASRClient(ABC):
 class FunASRClient(BaseASRClient):
     def __init__(self, config: dict):
         self.model_dir = config.get("model_dir", "")
+        self.device = config.get("device", "cpu")
         # 将FunASR的debug信息重定向到logger
         with redirect_to_logger_low_level(logger):
             self.model = AutoModel(
                 model=self.model_dir,
                 vad_kwargs={"max_single_segment_time": 30000},
-                device="cpu", # "cuda:0" if torch.cuda.is_available() else "cpu",
+                device=self.device, # "cuda:0" if torch.cuda.is_available() else "cpu",
                 disable_update=True, # 关闭funasr库的自动更新检查
                 hub="hf"
                 # chunk_size=96,

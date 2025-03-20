@@ -30,7 +30,9 @@ class AudioConfig:
     @property
     def frames_per_buffer(self) -> int:
         """计算每个缓冲区的帧数"""
-        return int(self.sample_rate / 1000 * self.chunk_duration_ms) # 比如 16kHz * 30ms = 480 frames
+        # for WebRTCVAD: 16kHz * 30ms = 480 samples
+        # for SileroVAD: 16kHz * 32ms = 512 samples
+        return int(self.sample_rate / 1000 * self.chunk_duration_ms)
 
 class AudioHandler:
     """异步的音频输入输出处理类
