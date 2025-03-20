@@ -26,7 +26,13 @@ async def main(config_file):
     # 初始化服务
     await service.init()
     # 启动服务
-    await service.pipeline()
+    try:
+        await service.pipeline()
+    except Exception as e:
+        logger.error(f"pipeline失败: {str(e)}")
+        raise
+    finally:
+        await service.close()
     
 
 if __name__ == "__main__":

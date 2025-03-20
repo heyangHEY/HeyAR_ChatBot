@@ -69,7 +69,7 @@ class FunASRClient(BaseASRClient):
             result = self.model.generate(
                 input=b''.join(audio_data), 
                 cache={}, 
-                language="auto", # "auto", "zh", "en", "yue", "ja", "ko", "nospeech"
+                language="zh", # "auto", "zh", "en", "yue", "ja", "ko", "nospeech"
                 use_itn=True, # 输出结果中是否包含标点与逆文本正则化。
                 batch_size_s=60 # 表示采用动态 batch，batch 中总音频时长，单位为秒 s。
             )

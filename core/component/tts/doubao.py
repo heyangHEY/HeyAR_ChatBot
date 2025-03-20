@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 import os
 import json
 import uuid
@@ -7,7 +6,6 @@ import logging
 import aiofiles
 import websockets
 from typing import Optional, Dict, Any, AsyncGenerator
-from pydantic import BaseModel
 
 from core.component.tts.base import AsyncBaseTTSClient
 
@@ -132,6 +130,21 @@ class AsyncDouBaoTTSClient(AsyncBaseTTSClient):
         self.speech_rate = config.get('speech_rate', 0)
         
         self.ws = None
+        self._initialized = False
+        
+    async def init(self):
+        """异步初始化，建立WebSocket连接"""
+        if self._initialized:
+            return
+            
+        await self._connect()
+        self._initialized = True
+        
+    async def close(self):
+        """关闭连接并清理资源"""
+        if self._initialized:
+            await self._finish_connection()
+            self._initialized = False
 
     async def _connect(self) -> None:
         """建立WebSocket连接"""
@@ -153,7 +166,7 @@ class AsyncDouBaoTTSClient(AsyncBaseTTSClient):
         
         # 建立连接
         await self._start_connection()
-        res = self._parse_response(await self.ws.recv())
+        res = await self._parse_response()
         if res.optional.event != EVENT_ConnectionStarted:
             raise RuntimeError("Failed to establish connection")
         logger.debug("WebSocket connection established")
@@ -248,8 +261,13 @@ class AsyncDouBaoTTSClient(AsyncBaseTTSClient):
             }
         }))
 
-    def _parse_response(self, res) -> Response:
+    async def _parse_response(self) -> Response:
         """解析响应"""
+        if not self.ws:
+            raise RuntimeError("WebSocket connection not established")
+        
+        res = await self.ws.recv()
+
         if isinstance(res, str):
             raise RuntimeError(res)
             
@@ -315,16 +333,16 @@ class AsyncDouBaoTTSClient(AsyncBaseTTSClient):
             output_path: 输出音频文件路径
         """
         try:
+            # 确保已初始化
+            await self.init()
+            
             # 确保输出目录存在
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            
-            # 建立连接
-            await self._connect()
             
             # 开始会话
             session_id = str(uuid.uuid4()).replace('-', '')
             await self._start_session(session_id)
-            res = self._parse_response(await self.ws.recv())
+            res = await self._parse_response()
             if res.optional.event != EVENT_SessionStarted:
                 raise RuntimeError("Failed to start session")
                 
@@ -335,7 +353,7 @@ class AsyncDouBaoTTSClient(AsyncBaseTTSClient):
             # 接收并保存音频
             async with aiofiles.open(output_path, mode="wb") as f:
                 while True:
-                    res = self._parse_response(await self.ws.recv())
+                    res = await self._parse_response()
                     if res.optional.event == EVENT_TTSResponse and res.header.message_type == AUDIO_ONLY_RESPONSE:
                         await f.write(res.payload)
                     elif res.optional.event in [EVENT_TTSSentenceStart, EVENT_TTSSentenceEnd]:
@@ -348,9 +366,6 @@ class AsyncDouBaoTTSClient(AsyncBaseTTSClient):
         except Exception as e:
             logger.error(f"TTS failed: {str(e)}")
             raise
-        finally:
-            # 确保关闭连接
-            await self._finish_connection()
 
     async def astream_tts(self, text_stream: AsyncGenerator[str, None]) -> AsyncGenerator[bytes, None]:
         """
@@ -361,40 +376,93 @@ class AsyncDouBaoTTSClient(AsyncBaseTTSClient):
             AsyncGenerator[bytes, None]: 语音流
         """
         try:
-            # 建立连接
-            await self._connect()
+            send_text_task = None
+            
+            # 确保已初始化
+            await self.init()
             
             # 开始会话
             session_id = str(uuid.uuid4()).replace('-', '')
             await self._start_session(session_id)
-            res = self._parse_response(await self.ws.recv())
+            res = await self._parse_response()
             if res.optional.event != EVENT_SessionStarted:
-                raise RuntimeError("Failed to start session")
+                # ! 不能直接抛出异常。
+                # raise RuntimeError("Failed to start session")
+                """
+                解释：
+                打断，指AI回复的过程中，被用户打断。
+
+                无打断事件发生的情况下:
+                1. 先发送EVENT_StartSession，然后等待EVENT_SessionStarted。
+                2. 流式的将llm生成的text token发送给tts。
+                3. 流式的从tts接收audio chunk。并yield给上层。
+                4. llm生成结束后，发送EVENT_FinishSession。
+                   tts会在处理完所有请求（返回所有audio chunk）后，发送EVENT_SessionFinished。
+
+                有打断事件发生的情况下:
+                ...
+                4. 发生打断事件，立即终止发送剩余的text token，并发送EVENT_FinishSession。
+                   但服务器会在处理完历史请求后，才返回EVENT_SessionFinished。
                 
-            # 处理文本流
-            async for text in text_stream:
-                if not text.strip():
-                    continue
-                # 发送文本
-                await self._send_text(text, session_id)
+                考虑一种情形：某次llm的回复非常长，在流式请求tts的过程中，被用户打断。
+                直到再一次进入astream_tts()中，打算发送新的EVENT_StartSession时，tts服务器依然没处理完上一次的请求。
+                此时等来的就不是EVENT_SessionStarted，而是EVENT_TTSResponse。
+                为此必须一直等，直到EVENT_SessionStarted的到来。
+                """
+                # 等待EVENT_SessionStarted的到来，最多等待3秒
+                start_time = asyncio.get_event_loop().time()
+                while True:
+                    # if asyncio.get_event_loop().time() - start_time > 3:
+                    #     raise asyncio.TimeoutError("等待会话开始超时")
+                    res = await self._parse_response()
+                    if res.optional.event == EVENT_SessionStarted:
+                        break
+                    elif res.optional.event == EVENT_SessionFailed:
+                        logger.error(f"会话启动失败: {res.optional.event}")
+                        raise RuntimeError("会话启动失败")
+                    await asyncio.sleep(0.1)
+                
+            # 给tts发送text token
+            async def async_send_text_task(text_stream: AsyncGenerator[str, None], session_id: str):
+                try:
+                    async for text in text_stream:
+                        if not text.strip():
+                            continue
+                        # 发送文本
+                        await self._send_text(text, session_id)
+                except Exception as e:
+                    logger.error(f"发送文本失败: {str(e)}")
+                    raise
+                finally:
+                    # 结束会话并等待确认，即使任务被取消也会执行
+                    await self._finish_session(session_id)
+
+            # 创建异步任务，允许被用户打断
+            send_text_task = asyncio.create_task(async_send_text_task(text_stream, session_id), name='send_text_task')
             
-            # 结束会话并等待确认
-            await self._finish_session(session_id)
+            # 接收tts返回的audio chunk
             while True:
-                res = self._parse_response(await self.ws.recv())
+                res = await self._parse_response()
                 if res.optional.event == EVENT_TTSResponse and res.header.message_type == AUDIO_ONLY_RESPONSE:
                     yield res.payload   
                 elif res.optional.event in [EVENT_TTSSentenceStart, EVENT_TTSSentenceEnd]:
                     continue
                 else:
                     break
+
+            await send_text_task
                 
         except Exception as e:
             logger.error(f"Streaming TTS failed: {str(e)}")
             raise
         finally:
-            # 确保关闭连接
-            await self._finish_connection()
+            # 如果任务未完成，意味着打断事件发生，此时需要手动取消任务
+            if send_text_task and not send_text_task.done():
+                send_text_task.cancel()
+                try:
+                    await send_text_task
+                except asyncio.CancelledError:
+                    logger.debug("已取消发送文本任务")
 
     async def astream_tts_to_file(self, text_stream: AsyncGenerator[str, None], output_path: str) -> None:
         """
@@ -413,6 +481,3 @@ class AsyncDouBaoTTSClient(AsyncBaseTTSClient):
         except Exception as e:
             logger.error(f"Streaming TTS to file failed: {str(e)}")
             raise
-        finally:
-            # 确保关闭连接
-            await self._finish_connection()

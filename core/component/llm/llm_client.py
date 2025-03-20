@@ -31,20 +31,24 @@ class AsyncOllamaClient(AsyncBaseLLMClient):
         """与LLM进行对话"""
         if print_stream:
             print("AI: ", end="", flush=True)
-        response = ""
-        async for chunk in self.llm.astream(messages):
-            token = chunk.content.strip()
-            if token:
-                response += token
-                if print_stream:
-                    print(token, end="", flush=True)
-                yield token
-            else:
-                break
-        if print_stream:
-            print("\n")
-
-        messages.append({
-            "role": "assistant",
-            "content": response
-        })
+        try:
+            response = ""
+            async for chunk in self.llm.astream(messages):
+                token = chunk.content.strip()
+                if token:
+                    response += token
+                    if print_stream:
+                        print(token, end="", flush=True)
+                    yield token
+                else:
+                    break
+        except Exception as e:
+            logger.error(f"Streaming LLM failed: {str(e)}")
+            raise
+        finally:
+            if print_stream:
+                print("\n")
+            messages.append({
+                "role": "assistant",
+                "content": response
+            })
