@@ -3,7 +3,7 @@ from core.utils.config import ConfigLoader
 from core.component.audio import AudioHandler
 from core.component.vad import SileroVADClient, WebRTCVADClient
 from core.component.asr import FunASRClient
-from core.component.llm import AsyncOllamaClient
+from core.component.llm import AsyncOllamaClient, AsyncOpenAIClient
 from core.component.tts import AsyncDouBaoTTSClient
 
 class ComponentFactory:
@@ -23,6 +23,7 @@ class ComponentFactory:
         },
         "LLM": {
             "Ollama": AsyncOllamaClient,
+            "OpenAI": AsyncOpenAIClient,
         },
         "TTS": {
             "DouBaoTTS": AsyncDouBaoTTSClient,

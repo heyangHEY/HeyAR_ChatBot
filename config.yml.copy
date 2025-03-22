@@ -12,9 +12,9 @@ base:
 selected_component:
     VIDEO: None
     AUDIO: General
-    VAD: WebRTCVAD
+    VAD: SileroVAD
     ASR: FunASR
-    LLM: Ollama
+    LLM: OpenAI
     VLM: None
     TTS: DouBaoTTS
 
@@ -26,30 +26,21 @@ VIDEO:
 AUDIO:
     General: 
         # 通用的PulseAudio设备，name: default, sample_rate: 48000, inputchannels: 1, outputchannels: 1
+        # name: USB Speaker-Mic, sample_rate: 48000, inputchannels: 1, outputchannels: 2
         input:
             name: pulse
             channels: 1
             sample_rate: 16000
-            chunk_duration: 30      # ms，音频片段的时长
+            # for WebRTCVAD: 16kHz*30ms=480 samples
+            # for SileroVAD: 16kHz*32ms=512 samples
+            chunk_duration: 32      # ms，音频片段的时长
         output:
             name: pulse
             channels: 1
             sample_rate: 24000
             chunk_duration: 30      # ms，音频片段的时长
         tmp_dir: tmp/audio
-    Thinkplus: 
-        # name: USB Speaker-Mic, sample_rate: 48000, inputchannels: 1, outputchannels: 2
-        input:
-            name: USB Speaker-Mic
-            channels: 1
-            sample_rate: 16000
-            chunk_duration: 30      # ms，音频片段的时长
-        output:
-            name: USB Speaker-Mic
-            channels: 2
-            sample_rate: 48000
-            chunk_duration: 30      # ms，音频片段的时长
-        tmp_dir: tmp/audio
+
 
 # 语音活动检测
 VAD:
@@ -59,13 +50,21 @@ VAD:
             # 模式0，保守策略，误判语音为噪声的概率最低，适用于低噪声环境。
             # 模式3，激进策略，误判噪声为语音的概率最低，适用于高噪声环境。
         sample_rate: 16000
-        chunk_duration: 30      # ms，音频片段的时长，支持10ms、20ms、30ms这三种
+        chunk_duration: 30                  # ms，音频片段的时长，支持10ms、20ms、30ms这三种
+    SileroVAD:
+        # https://github.com/snakers4/silero-vad
+        model_dir: models/silero-vad-5.1.2  # snakers4/silero-vad
+        device: cpu                         # cpu/cuda
+        threshold: 0.5                      # 阈值，值越高检测越严格
+        sample_rate: 16000                  # 8k/16k
+        min_speech_duration_ms: 300         # 最小语音时长，单位为ms，默认300ms
 
 # 语音识别
 ASR:
     FunASR:
         model_dir: models/SenseVoiceSmall
         tmp_dir: tmp/asr
+        device: cpu # "cuda:0" if torch.cuda.is_available() else "cpu"
         clean_tmp_files: True   # 是否在ASR结束后，清理tmp_dir中的临时文件
 
 # 语言模型
@@ -74,6 +73,14 @@ LLM:
         model_name: qwen2.5:0.5b            # 32b
         temperature: 0.1
         base_url: http://localhost:11434    # Ollama服务地址
+    OpenAI:
+        # 使用 OpenAI API
+        model_name: gpt-4o-mini
+        api_key: 【待填写】
+        base_url: 【待填写】
+        timeout: 3                          # 请求超时时间，单位为秒
+        temperature: 0.1                    # 温度，取值范围[0,1]，0代表确定性输出，1代表随机性输出
+        stream: True                        # 是否启用流式输出
 
 # 视觉语言模型
 VLM:
@@ -98,6 +105,6 @@ TTS:
         audio_format: pcm                                   # 音频格式：mp3/ogg_opus/pcm
         audio_sample_rate: 24000                            # 音频采样率：[8000,16000,22050,24000,32000,44100,48000]
         speech_rate: 0                                      # 语速，取值范围[-50,100]，100代表2.0倍速，-50代表0.5倍数
-        app_id:                                             # 应用ID    # ! 隐私
-        access_token:                                       # 口令      # ! 隐私
+        app_id: 【待填写】                                    # 应用ID    # ! 隐私
+        access_token: 【待填写】                              # 口令      # ! 隐私
         tmp_dir: tmp/tts

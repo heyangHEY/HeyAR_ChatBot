@@ -1,3 +1,3 @@
-from core.component.llm.llm_client import AsyncBaseLLMClient, AsyncOllamaClient
+from core.component.llm.llm_client import AsyncBaseLLMClient, AsyncOllamaClient, AsyncOpenAIClient
 
-__all__ = ["AsyncBaseLLMClient", "AsyncOllamaClient"]
+__all__ = ["AsyncBaseLLMClient", "AsyncOllamaClient", "AsyncOpenAIClient"]
