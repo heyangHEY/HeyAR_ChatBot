@@ -37,8 +37,11 @@ class TestOpenAIFunctionCall:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=self.messages,
-                functions=self.tool_handler.get_function_definitions(),
-                function_call="auto"
+                temperature=0.1,
+                **({
+                    "functions": self.tool_handler.get_function_definitions(),
+                    "function_call": "auto",  # 自动选择是否调用函数
+                } if self.tool_handler.get_function_definitions() else {}),
             )
             
             # 获取返回结果

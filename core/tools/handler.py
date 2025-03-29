@@ -61,7 +61,10 @@ class ToolHandler:
     
     def execute_function(self, function_name: str, function_args: str) -> str:
         """执行指定的函数"""
+        logger.debug(f"Function Call, name: {function_name}, args: {function_args}")
+
         if function_name not in self.available_functions:
+            logger.error(f"未知的函数: {function_name}")
             return f"未知的函数: {function_name}"
         
         try:
