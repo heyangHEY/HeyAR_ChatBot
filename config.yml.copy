@@ -4,7 +4,7 @@ version: 0.0.1
 base:
     log:
         path: ./app.log
-        level: INFO         # 设置日志级别（ DEBUG < INFO < WARNING < ERROR < CRITICAL ）
+        level: DEBUG         # 设置日志级别（ DEBUG < INFO < WARNING < ERROR < CRITICAL ）
         on_console: False   # 是否在控制台输出日志
     tmp_dir: tmp
 
@@ -17,6 +17,8 @@ selected_component:
     LLM: OpenAI
     VLM: None
     TTS: DouBaoTTS
+    TOOLS: # yml 支持列表格式，如：行内列表 [Weather, PlayMusic] 或 多行列表
+        - Weather
 
 # 视频组件
 VIDEO:
@@ -108,3 +110,9 @@ TTS:
         app_id: 【待填写】                                    # 应用ID    # ! 隐私
         access_token: 【待填写】                              # 口令      # ! 隐私
         tmp_dir: tmp/tts
+
+TOOLS:
+    Weather: # 查询天气
+        gaode_api_key: 【待填写】
+    PlayMusic: # 播放音乐
+        music_dir: ./music

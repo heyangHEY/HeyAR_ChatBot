@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 class WeatherTool:
     def __init__(self, config: ConfigLoader):
         self.config = config
-        self.api_key = config.get_tool_config("Weather").get("GAODE_API_KEY", "")
+        self.api_key = config.get_tool_config("Weather").get("gaode_api_key", "")
 
         # 定义天气相关的函数
         self.function_definitions = [
