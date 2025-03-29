@@ -6,7 +6,7 @@ class ConfigLoader:
     config_path: str = ""
     all_cfg: Dict[str, Any] = {}
     base_cfg: Dict[str, Any] = {}
-    selected_component_cfg: Dict[str, Any] = {}
+    selected_component_cfg: Dict[str, list[Any]] = {}
 
     def __init__(self, config_path: str):
         """初始化配置加载器
@@ -17,7 +17,7 @@ class ConfigLoader:
         self.config_path = config_path
         self.all_cfg: Dict[str, Any] = {}
         self.base_cfg: Dict[str, Any] = {}
-        self.selected_component_cfg: Dict[str, Any] = {}
+        self.selected_component_cfg: Dict[str, list[Any]] = {}
         self._load_config()
         
     def _load_config(self) -> None:
@@ -50,3 +50,10 @@ class ConfigLoader:
         else:
             return {}
     
+    # 获取用户想要启用的工具列表
+    def get_tools_list(self) -> list[str]:
+        return self.selected_component_cfg.get("TOOLS", {})
+
+    # 注意：启用工具之前，需要先配置好工具的参数
+    def get_tool_config(self, name: str):
+        return self.all_cfg.get("TOOLS", {}).get(name, {})

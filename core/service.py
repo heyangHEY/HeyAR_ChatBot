@@ -11,6 +11,7 @@ from core.component.vad import BaseVADClient
 from core.component.asr import BaseASRClient
 from core.component.llm import AsyncBaseLLMClient
 from core.component.tts import AsyncBaseTTSClient
+from core.tools.handler import ToolHandler
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,9 @@ class VoiceChatBotService():
     async def init(self):
         """初始化所有组件"""
         components = await ComponentFactory.create_components(self.config)
+        
+        # 初始化工具处理器
+        self.tool_handler = ToolHandler()
         
         self.audio_handler = components['audio']
         self.vad_client = components['vad']
