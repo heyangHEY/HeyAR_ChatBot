@@ -27,6 +27,7 @@ class ComponentFactory:
         },
         "TTS": {
             "DouBaoTTS": AsyncDouBaoTTSClient,
+            "GizwitsTTS": AsyncDouBaoTTSClient,
         }
     }
 

@@ -16,7 +16,7 @@ selected_component:
     ASR: FunASR
     LLM: OpenAI
     VLM: None
-    TTS: DouBaoTTS
+    TTS: GizwitsTTS
     TOOLS: # yml 支持列表格式，如：行内列表 [Weather, PlayMusic] 或 多行列表
         - Weather
 
@@ -109,6 +109,15 @@ TTS:
         speech_rate: 0                                      # 语速，取值范围[-50,100]，100代表2.0倍速，-50代表0.5倍数
         app_id: 【待填写】                                    # 应用ID    # ! 隐私
         access_token: 【待填写】                              # 口令      # ! 隐私
+        tmp_dir: tmp/tts
+    GizwitsTTS:
+        # 机智云，使用参考：https://cb7sb1iltn.feishu.cn/docx/ILjrdKJtNoh6r6xwPaOcvMYgnif
+        base_url: wss://bytedance.gizwitsapi.com/api/v3/tts/bidirection
+        speaker: zh_female_wanwanxiaohe_moon_bigtts
+        audio_format: pcm
+        audio_sample_rate: 24000
+        speech_rate: 0
+        access_token: 【待填写】 
         tmp_dir: tmp/tts
 
 TOOLS:
