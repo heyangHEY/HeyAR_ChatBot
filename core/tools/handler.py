@@ -3,6 +3,7 @@ from typing import List, Dict, Any
 import logging
 from core.utils.config import ConfigLoader
 from .weather import WeatherTool
+from .time_tool import TimeTool
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +20,9 @@ class ToolHandler:
         }
         
         # 注册启用的工具
-        self.available_functions = {}
+        self.available_tools = {}
         # 收集启用工具的函数定义
-        self.function_definitions = []
+        self._tool_definitions = []
         
         # 初始化启用的工具
         self._init_tools()
@@ -38,40 +39,45 @@ class ToolHandler:
                 tool_instance = self.tool_classes[tool_name](self.config)
                 
                 # 获取工具的函数定义
-                tool_definitions = tool_instance.get_function_definitions()
+                tool_definitions = tool_instance.get_tool_definitions()
                 if isinstance(tool_definitions, list):
-                    self.function_definitions.extend(tool_definitions)
+                    self._tool_definitions.extend(tool_definitions)
                 else:
-                    self.function_definitions.append(tool_definitions)
+                    self._tool_definitions.append(tool_definitions)
                 
                 # 注册工具的处理方法
-                for func_def in tool_definitions:
-                    func_name = func_def["name"]
-                    if hasattr(tool_instance, f"handle_{func_name}"):
-                        self.available_functions[func_name] = getattr(tool_instance, f"handle_{func_name}")
+                for tool_def in tool_definitions:
+                    tool_name = tool_def.get("function", {}).get("name", "")
+                    if not tool_name:
+                        logger.warning(f"工具定义缺少name: {tool_def}")
+                        continue
+                    if hasattr(tool_instance, f"handle_{tool_name}"):
+                        self.available_tools[tool_name] = getattr(tool_instance, f"handle_{tool_name}")
                     else:
-                        logger.warning(f"工具 {tool_name} 缺少处理方法: handle_{func_name}")
+                        logger.warning(f"工具 {tool_name} 缺少处理方法: handle_{tool_name}")
                         
             except Exception as e:
+                import traceback
+                traceback.print_exc()
                 logger.error(f"初始化工具 {tool_name} 失败: {str(e)}")
     
-    def get_function_definitions(self) -> List[Dict[str, Any]]:
-        """获取所有注册的函数定义"""
-        return self.function_definitions
+    def get_tool_definitions(self) -> List[Dict[str, Any]]:
+        """获取所有注册的工具定义"""
+        return self._tool_definitions
     
-    def execute_function(self, function_name: str, function_args: str) -> str:
-        """执行指定的函数"""
-        logger.debug(f"Function Call, name: {function_name}, args: {function_args}")
+    def execute_tool(self, tool_name: str, tool_args: str) -> str:
+        """执行指定的工具"""
+        logger.debug(f"Tool Call, name: {tool_name}, args: {tool_args}")
 
-        if function_name not in self.available_functions:
-            logger.error(f"未知的函数: {function_name}")
-            return f"未知的函数: {function_name}"
+        if tool_name not in self.available_tools:
+            logger.error(f"未知的工具: {tool_name}")
+            return f"未知的工具: {tool_name}"
         
         try:
-            args = json.loads(function_args) if isinstance(function_args, str) else function_args
-            return self.available_functions[function_name](args)
+            args = json.loads(tool_args) if isinstance(tool_args, str) else tool_args
+            return self.available_tools[tool_name](args)
         except Exception as e:
-            logger.error(f"执行函数 {function_name} 失败: {str(e)}")
-            return f"函数执行错误: {str(e)}"
+            logger.error(f"执行工具 {tool_name} 失败: {str(e)}")
+            return f"工具执行错误: {str(e)}"
     
 

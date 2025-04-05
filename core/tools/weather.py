@@ -11,46 +11,50 @@ class WeatherTool:
         self.api_key = config.get_tool_config("Weather").get("gaode_api_key", "")
 
         # 定义天气相关的函数
-        self.function_definitions = [
+        self.tool_definitions = [
             {
                 "type": "function",
-                "name": "get_current_weather",
-                "description": "获取指定城市的实时天气信息",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "city": {
-                            "type": "string",
-                            "description": "中国城市名称，例如：北京、上海、深圳"
-                        }
+                "function": {
+                    "name": "get_current_weather",
+                    "description": "获取指定城市的实时天气信息",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "city": {
+                                "type": "string",
+                                "description": "中国城市名称，例如：北京、上海、深圳"
+                            }
+                        },
+                        "required": ["city"],
+                        "additionalProperties": False
                     },
-                    "required": ["city"],
-                    "additionalProperties": False
-                },
-                # "strict": True
+                    "strict": True
+                }
             },
             {
                 "type": "function",
-                "name": "get_weather_forecast",
-                "description": "获取指定城市的未来天气预报（今天及未来3天）",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "city": {
-                            "type": "string",
-                            "description": "中国城市名称，例如：北京、上海、深圳"
-                        }
+                "function": {
+                    "name": "get_weather_forecast",
+                    "description": "获取指定城市的未来天气预报（今天及未来3天）",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "city": {
+                                "type": "string",
+                                "description": "中国城市名称，例如：北京、上海、深圳"
+                            }
+                        },
+                        "required": ["city"],
+                        "additionalProperties": False
                     },
-                    "required": ["city"],
-                    "additionalProperties": False
-                },
-                # "strict": True
+                    "strict": True
+                }
             }
         ]
 
-    def get_function_definitions(self) -> List[Dict[str, Any]]:
+    def get_tool_definitions(self) -> List[Dict[str, Any]]:
         """获取所有注册的函数定义"""
-        return self.function_definitions
+        return self.tool_definitions
 
     def _get_weather_data(self, city: str, weather_type: str = "base") -> Dict[str, Any]:
         """

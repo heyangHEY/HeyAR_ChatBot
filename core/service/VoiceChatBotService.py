@@ -42,11 +42,12 @@ class VoiceChatBotService():
         self.llm_client = components['llm']
         self.tts_client = components['tts']
 
-        self.llm_client.config_function_call(self.tool_handler)
+        self.llm_client.config_tool_call(self.tool_handler)
         await self.audio_handler.init()
         await self.tts_client.init()
 
     async def pipeline(self):
+        # TODO 系统提示词中增加工具调用指南，以提升工具调用成功率
         self.chag_log.append({
             "role": "system",
             "content": "你是一个友好的语音对话助手。请注意：\
