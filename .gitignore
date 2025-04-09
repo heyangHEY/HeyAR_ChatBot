@@ -181,3 +181,5 @@ models/
 chroma_db/
 # 存储临时文件、中间结果
 tmp/
+# 存储音乐文件
+music/
