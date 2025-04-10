@@ -1,0 +1,6 @@
+- [x] 增加测试例：MCP Server Weather 天气查询
+- [x] 增加测试例，MCP Client + OpenAI LLM，通过 Function Call 调用 MCP Server 提供的工具
+- [ ] 添加echo_cancel和enable_natural_break的逻辑
+- [ ] core/tools中增加MCP Server
+- [ ] bug：VAD触发ASR时，抓到的语音不完整
+- [ ] bug：若打断速度过快，比如连续两次打断，系统会崩

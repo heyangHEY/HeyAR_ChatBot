@@ -13,6 +13,7 @@
 4. 智能回复生成（LLM）
    - 流式响应：大模型实时生成文本片段（非完整回复），降低首字延迟
    - 多轮对话管理：结合历史上下文生成符合场景的回复
+   - 支持调用外部工具：通过 Function Call / MCP
 5. 语音合成（TTS）
    - 双向流式合成：
      - 输入侧：LLM 生成首个文本 token 后立即触发 TTS
@@ -24,12 +25,17 @@
 
 ### Tips：
 1. 确保麦克风设备支持“硬件级回声消除”：消除设备自播放语音的干扰，确保用户随时插话可被精准识别。
-   - [x] 蓝牙耳机
+   - [x] 蓝牙耳机，config.yml/AUDIO/General/echo_cancel: True
    - [x] 会议麦克风（带扬声器）
-   - 普通带麦扬声器，则只能在 config.yml 中取消勾选“随时打断”
-2. 火山引擎中，语音合成大模型 TTS，只面向通过企业认证的用户。备选方案是注册机智云账号，无需企业认证，也能用上火山引擎同款 TTS。
+   - 支持回声消除的硬件，请设置 config.yml/AUDIO/General/echo_cancel: True
+   - 普通带麦扬声器，则只能设置为 False
+   - config.yml/base/enable_natural_break: True 则启用“对话自然打断”（仅硬件支持回声消除时有效）
+2. 火山引擎中，语音合成大模型 TTS，只面向通过企业认证的用户。备选方案是注册机智云账号，无需企业认证，也能用上火山引擎同款 TTS；
 3. 对工具的支持：若 LLM 支持 Function Call，则对话助手支持查询天气、播放音乐等，且支持单轮对话中包含多个FC。
-4. 通过 config.yml 进行模块的配置和调整 pipeline。
+4. 通过 config.yml 进行模块的配置和调整 pipeline；
+5. 支持 LLM 调用外部工具：
+   - [x] 通过 Function Call 调用外部工具
+   - [x] 通过 MCP 调用外部工具
 
 
 ### 组件支持
@@ -45,8 +51,8 @@
    - [x] Function Call
      - [x] 高德 天气查询服务，可查当天、未来三天
      - [ ] 本地音乐播放
-   - [ ] MCP
-     - [ ] 高德地图MCP服务
+   - [x] MCP
+     - [x] 高德地图MCP服务
      - [ ] playwright
      - [ ] filesystem
      - [ ] Apple Music
@@ -95,6 +101,9 @@ python -m core.test.test_doubao_tts_client_and_play
 ./test/: 提供了几个notebook以供单功能测试和学习；  
 ./models/: 存储模型文件；  
 ./tmp/: 存储对话过程中产生的临时文件，比如麦克风捕获的录音、tts合成的音频等；  
+
+### TODO
+详见 [TODO](TODO.md)
 
 感谢以下项目：
 1. [xiaozhi-esp32-server](https://github.com/xinnan-tech/xiaozhi-esp32-server)

@@ -4,9 +4,10 @@ version: 0.0.1
 base:
     log:
         path: ./app.log
-        level: DEBUG         # 设置日志级别（ DEBUG < INFO < WARNING < ERROR < CRITICAL ）
-        on_console: False   # 是否在控制台输出日志
+        level: DEBUG            # 设置日志级别（ DEBUG < INFO < WARNING < ERROR < CRITICAL ）
+        on_console: False       # 是否在控制台输出日志
     tmp_dir: tmp
+    enable_natural_break: True  # 是否启用自然打断。仅当硬件支持回声消除时，此选项才有效
 
 # 选中的组件
 selected_component:
@@ -29,6 +30,7 @@ AUDIO:
     General: 
         # 通用的PulseAudio设备，name: default, sample_rate: 48000, inputchannels: 1, outputchannels: 1
         # name: USB Speaker-Mic, sample_rate: 48000, inputchannels: 1, outputchannels: 2
+        echo_cancel: True           # 硬件必须支持回声消除，软件才能支持自然打断
         input:
             name: pulse
             channels: 1
@@ -107,8 +109,8 @@ TTS:
         audio_format: pcm                                   # 音频格式：mp3/ogg_opus/pcm
         audio_sample_rate: 24000                            # 音频采样率：[8000,16000,22050,24000,32000,44100,48000]
         speech_rate: 0                                      # 语速，取值范围[-50,100]，100代表2.0倍速，-50代表0.5倍数
-        app_id: 【待填写】                                    # 应用ID    # ! 隐私
-        access_token: 【待填写】                              # 口令      # ! 隐私
+        app_id: 【待填写】                                    # 应用ID
+        access_token: 【待填写】                              # 口令
         tmp_dir: tmp/tts
     GizwitsTTS:
         # 机智云，使用参考：https://cb7sb1iltn.feishu.cn/docx/ILjrdKJtNoh6r6xwPaOcvMYgnif
@@ -122,6 +124,13 @@ TTS:
 
 TOOLS:
     Weather: # 查询天气
-        gaode_api_key: 【待填写】
+        Gaode: # 高德地图的天气API
+            # 使用参考：https://lbs.amap.com/api/webservice/guide/api/weatherinfo
+            base_url: https://restapi.amap.com/v3/weather/weatherInfo
+            api_key: 【待填写】
+        QWeather: # 和风天气
+            # 使用参考：https://dev.qweather.com/docs/api/weather/weather-now/
+            base_url: 【待填写】
+            api_key: 【待填写】
     PlayMusic: # 播放音乐
         music_dir: ./music

@@ -8,7 +8,8 @@ logger = logging.getLogger(__name__)
 class WeatherTool:
     def __init__(self, config: ConfigLoader):
         self.config = config
-        self.api_key = config.get_tool_config("Weather").get("gaode_api_key", "")
+        self.api_key = config.get_tool_config("Weather").get("Gaode", "api_key")
+        self.base_url = config.get_tool_config("Weather").get("Gaode", "base_url")
 
         # 定义天气相关的函数
         self.tool_definitions = [
@@ -63,7 +64,6 @@ class WeatherTool:
             :param weather_type: 'base' 获取实时天气，'all' 获取天气预报
             :return: 天气数据字典
         """
-        base_url = "https://restapi.amap.com/v3/weather/weatherInfo"
         if not self.api_key:
             raise ValueError("高德API密钥未配置")
         params = {
@@ -73,7 +73,7 @@ class WeatherTool:
             "output": "JSON"
         }
         
-        response = requests.get(base_url, params=params)
+        response = requests.get(self.base_url, params=params)
         return response.json()
 
     def _format_current_weather(self, weather_data: Dict[str, Any]) -> str:
